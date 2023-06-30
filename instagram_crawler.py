@@ -36,7 +36,7 @@ time.sleep(3)
 # btn_later2.click()
 # time.sleep(3)
 
-_keyword = '직관' # 검색할 키워드
+_keyword = '야구직관' # 검색할 키워드
 dr.get('https://www.instagram.com/explore/tags/' + _keyword + '/')
 
 time.sleep(12)
@@ -70,7 +70,7 @@ for window in trange(50000):
         label=img_2[0].get_attribute('alt')
         print(label)
         try:
-            urllib.request.urlretrieve(source,"pictures/test_"+str(count)+".jpg")
+            urllib.request.urlretrieve(source,"pictures/test__"+str(count)+".jpg")
             count+=1
         except:
             print("error source.")

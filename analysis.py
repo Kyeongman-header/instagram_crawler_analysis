@@ -15,7 +15,7 @@ letter_counts = Counter(labels)
 # print(letter_counts)
 df = pandas.DataFrame.from_dict(letter_counts, orient='index')
 print("before drop the too low frequency values, it ramains : " + str(len(df)))
-# df.plot(kind='bar')
+df.plot(kind='bar')
 
 # N 개 값 이하는 없앤다.
 enough_values=[]
@@ -27,7 +27,7 @@ while i<len(df):
     df.drop(df.index[i],axis=0,inplace=True)
     continue
   else:
-    words=df.index[i].lower().split(' ')
+    words=df.index[i].replace('-','').lower().split(' ')
     for word in words:
         enough_values.append(word)
     i+=1
@@ -47,20 +47,35 @@ from sklearn.decomposition import PCA
 from gensim.models import KeyedVectors
 import gensim.downloader as api
 
+def most_similarity_labels(word,enough_values,model,topn=10):
+  sims=[]
+  for w in enough_values:
+    sims.append({'word' : w ,'sim':model.similarity(word,w)})
+  sorted(sims, key=lambda e: (-e['sim']))
+  return sims[:topn]
+
+
 
 model = api.load('word2vec-google-news-300')
 # vector = model.wv['computer']
 # print(vector)
 
+# 현존하는 가장 큰 모델을 가져왔다(총 3백만개 word embeddings을 학습.)
+# 그렇지만 그래도 없는 단어가 우리가 수집한 label에 존재할 수도.
+# 그 경우엔 에러에 뜬 단어는 직접 없애 줘야 한다.
+# 아래는 삭제 예제.('organism' 단어가 없다고 오류가 떴을때)
+
+# enough_values.remove('organism')
+
+
+
 model_temp = Word2Vec([enough_values],size=300, min_count=1)
 # print(model_temp.wv.vocab)
 
+# 아래는 most_similarity_labels.
+print(most_similarity_labels('organism',enough_values=enough_values,model=model,topn=5))
 
-X = model[model_temp.wv.vocab] # 현존하는 가장 큰 모델을 가져왔다(총 3백만개 word embeddings을 학습.)
-# 그렇지만 그래도 없는 단어가 우리가 수집한 label에 존재할 수도.
-# 그 경우엔 에러에 뜬 단어는 직접 없애 줘야 한다.
-# 아래는 삭제 예제.('organism' 단어가 없다고 떴을때)
-# enough_values.remove('organism')
+X = model[model_temp.wv.vocab] 
 
 
 pca = PCA(n_components=2)
