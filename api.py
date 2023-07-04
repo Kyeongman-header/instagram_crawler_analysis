@@ -11,8 +11,8 @@ def run_quickstart(path = "pictures") -> vision.EntityAnnotation:
     """Provides a quick start example for Cloud Vision."""
 
     # Instantiates a client
-    client = vision.ImageAnnotatorClient(client_options={"api_key": "AIzaSyDhC3CBC-OHTG5ees7HwJxt0w-a-X7pHEk",
-                                                               "quota_project_id": "platinum-chain-391103"})
+    client = vision.ImageAnnotatorClient(client_options={"api_key": "",
+                                                               "quota_project_id": ""}) # key와 project id를 여기에 각각 넣습니다
     
     file_list = os.listdir(path)
     file_count = len(file_list)

@@ -33,8 +33,21 @@ while i<len(df):
     i+=1
 print("after drop the too low frequency values, it ramains : " + str(len(df)))
 
+
 df.plot(kind='bar')
 plt.show()
+
+
+i=0
+while i<len(df):
+  print(df.index[i]+ ":" + str(df.iloc[i,0]))
+  i+=1
+
+whole_array=df.index.values.tolist()
+_index=whole_array.index('Cleat')
+print("찾으신 라벨의 개수는 : ")
+print(df.index[_index]+ ":" + str(df.iloc[_index,0]))
+
 
 # print(enough_values)
 
