@@ -49,9 +49,14 @@ import gensim.downloader as api
 
 def most_similarity_labels(word,enough_values,model,topn=10):
   sims=[]
+  temp_w=[]
   for w in enough_values:
+    if w in temp_w:
+      continue
+    temp_w.append(w) 
     sims.append({'word' : w ,'sim':model.similarity(word,w)})
-  sorted(sims, key=lambda e: (-e['sim']))
+  
+  sims=sorted(sims, key=lambda e: (-e['sim']))
   return sims[:topn]
 
 
@@ -65,15 +70,14 @@ model = api.load('word2vec-google-news-300')
 # 그 경우엔 에러에 뜬 단어는 직접 없애 줘야 한다.
 # 아래는 삭제 예제.('organism' 단어가 없다고 오류가 떴을때)
 
-# enough_values.remove('organism')
+enough_values.remove('batandball')
 
 
 
 model_temp = Word2Vec([enough_values],size=300, min_count=1)
 # print(model_temp.wv.vocab)
 
-# 아래는 most_similarity_labels.
-print(most_similarity_labels('organism',enough_values=enough_values,model=model,topn=5))
+
 
 X = model[model_temp.wv.vocab] 
 
@@ -86,3 +90,16 @@ words = list(model_temp.wv.vocab)
 for i, word in enumerate(words):
     plt.annotate(word, xy=(result[i, 0], result[i, 1]))
 plt.show()
+
+
+# 아래는 most_similarity_labels.
+
+
+
+
+
+
+
+print(most_similarity_labels('baseball',enough_values=enough_values,model=model,topn=5))
+
+
