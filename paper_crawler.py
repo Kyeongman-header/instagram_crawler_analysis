@@ -14,7 +14,7 @@ import csv
 
 dr = webdriver.Chrome(executable_path="./chromedriver.exe") #웹드라이버로 크롬 웹 켜기. 
 dr.set_window_size(1500, 2000) 	#브라우저 크기 414*800으로 고정
-dr.get('https://www.dbpia.co.kr/journal/publicationDetail?publicationId=PLCT00007284#none') #인스타그램 웹 켜기
+dr.get('https://www.dbpia.co.kr/journal/publicationDetail?publicationId=PLCT00007284#none') #dbpia 웹
 time.sleep(2) 	#2초 대기
 #sidebarPub
 #searchListArea > li > div.listBox > div.titWrap > h5 > a
@@ -25,17 +25,45 @@ time.sleep(2) 	#2초 대기
 lists=dr.find_elements_by_css_selector('#sidebarPub')
 
 lists[0].click()
-lists[0].click()
+# ---
+# lists[0].click()
+# ---
 
-def abstract_and_keywords(dr):
+# --->
+dr.execute_script('window.scrollTo(0, 1000);')
+time.sleep(1)
+lists[23].click()
+# --->
+
+f = open("papers.csv", "w",newline='',encoding='cp949')
+writer = csv.writer(f,delimiter=',')
+writer.writerow(['title','years','abstract','keywords'])
+whole_index=0
+
+def abstract_and_keywords(dr,whole_index):
+    
+    whole_keywords=[]
+
     try:
-        title=dr.find_elements_by_css_selector('#thesisTitle')
-        print(title[0].text)
+        #dpMain > section > section.thesisDetail__info > section.thesisDetail__journal > ul > li:nth-child(4) > span:nth-child(1)
+        years=dr.find_elements_by_css_selector('section.thesisDetail__info > section.thesisDetail__journal > ul > li:nth-child(4) > span:nth-child(1)')
+        # print(years[0].text)
+        years_words=years[0].text
 
+        title=dr.find_elements_by_css_selector('#thesisTitle')
+        # print(title[0].text)
+
+        title_words=title[0].text
+        #dpMain > section > section.thesisDetail__abstract > div
         abstract=dr.find_elements_by_css_selector(' div.abstractTxt')
-        # print(abstract)
-        abstract=abstract[0].text
-        print(abstract)
+        
+        if len(abstract)==0:
+            abstract=dr.find_elements_by_css_selector('section > section.thesisDetail__abstract > div')
+        if len(abstract)==0:
+            abstract_words="no abstract words"
+        else:
+            abstract_words=abstract[0].text
+        # print(abstract_words)
         
         i=1
         while True:
@@ -43,31 +71,105 @@ def abstract_and_keywords(dr):
             keyword=dr.find_elements_by_css_selector(' div.keywordWrap > a:nth-child('+str(i)+')')
             if len(keyword)==0:
                 break
-            print(keyword[0].text)
+            # print(keyword[0].text)
 
+            whole_keywords.append(keyword[0].text)
+            
             i +=1
-    except:
-        print("no var")
-now_page=0
+        
+        # print(whole_keywords)
+
+        whole_keywords = ' '.join(whole_keywords)
+        whole_index += 1
+        print("index : ")
+        print(whole_index)
+        print("title and years : ")
+        print(title_words + ' ' + years_words)
+        # print(abstract_words)
+        # print(whole_keywords)
+
+
+        writer.writerow([title_words,years_words,abstract_words,whole_keywords])
+
+    except Exception as e :
+        print(e)
+    return whole_index
+    
+    
+
+now_page=23
+# ---
+# first = True
+# ---
+first=False
 while True:
-    for i in range(1,7):
+    for i in range(1,5): # 2009년부터는 1~4호까지만 있다(그 이후에는 1~6호까지 있으므로, 2023~2009년을 수집하려면 range(1,7)로 바꾼다.)
+        if first and i>3:
+            first=False
+            break
+        #dev_category > li:nth-child(2)
+        #dev_category > li:nth-child(1)
         paper=dr.find_elements_by_css_selector('#dev_category > li:nth-child('+ str(i) +') > a')
+        print("paper")
+        print(i)
+        print(paper)
+        print(len(paper))
+
+        #dev_category > li:nth-child(2)
+        #dev_category > li:nth-child(1)
+        #dev_category > li:nth-child(1)
+        #dev_category > li:nth-child(3)
+        #dev_category > li > a
+        #dev_category > li:nth-child(1)
+        #dev_category > li:nth-child(2)
+        #dev_category > li
+        #dev_category > li:nth-child(2)
+        
         if len(paper)!=0:
             # try:
-                if i>=3:
-                    paper[now_page-1].click()
-                else:
-                    paper[now_page].click()
+                actions = ActionChains(dr)
+                try:
+                    if i>3 or (now_page>=23 and i>=2): # 2001년인가에 1호만 있었던 적이 있어서, 그 이후 2호 이상들은 다 now_page -1 을 해야 정상적인 인덱스가 된다...
+                            actions.move_to_element(paper[now_page-1])
+                            actions.perform()
+                            time.sleep(0.5)
+                            # actions.send_keys(Keys.PAGE_UP)
+                            dr.execute_script('window.scrollTo(0, -250);')
+                            time.sleep(0.5)
+                            actions.click(paper[now_page-1])
+                            actions.perform()
+                        
+
+                        # paper[now_page-1].click()
+                    else:
+                            actions.move_to_element(paper[now_page])
+                            actions.perform()
+                            time.sleep(1)
+                            
+                            if now_page<23:
+                                dr.execute_script('window.scrollTo(0, -250);')
+                            elif now_page>=23 and i>1:
+                                lists[now_page].click()
+                            
+                            time.sleep(1)    
+                            actions.click(paper[now_page])
+                            actions.perform()
+                except Exception as e :
+                    print(e)
+                    break
+
+
+                time.sleep(1.5)
                 #voisNodeList > article:nth-child(2) > article > a > h2
                 link=dr.find_elements_by_css_selector('article > a')
-                # print(link)
+                
                 for k in range(1,20):
                     try:
                         link[k].click()
                         dr.switch_to.window(dr.window_handles[-1])  #새로 연 탭으로 이동
                         
                         
-                        abstract_and_keywords(dr)
+                        whole_index=abstract_and_keywords(dr,whole_index)
                         time.sleep(2)
                         dr.close()
                         dr.switch_to.window(dr.window_handles[-1])
@@ -77,15 +179,23 @@ while True:
                     
             # except:
             #     break
+        else:
+             break
         time.sleep(2)
 
-    
+    actions = ActionChains(dr)
     time.sleep(1)
     lists=dr.find_elements_by_css_selector('#sidebarPub')
-    
-    # print(lists)
     now_page +=1
-    dr.move_to_element(lists[now_page])
-    lists[now_page].send_keys(Keys.ENTER)
+    try:
+        actions.move_to_element(lists[now_page])
+        actions.perform()
+        # actions.send_keys(Keys.PAGE_UP)
+        dr.execute_script('window.scrollTo(0, -250);')
+        actions.click(lists[now_page])
+        actions.perform()
+        
+    except:
+        continue
     time.sleep(2)
 
