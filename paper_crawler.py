@@ -12,6 +12,12 @@ import time
 import datetime
 import csv
 
+
+
+whole_pages=26
+
+
+
 dr = webdriver.Chrome(executable_path="./chromedriver.exe") #웹드라이버로 크롬 웹 켜기. 
 dr.set_window_size(1500, 2000) 	#브라우저 크기 414*800으로 고정
 dr.get('https://www.dbpia.co.kr/journal/publicationDetail?publicationId=PLCT00007284#none') #dbpia 웹
@@ -26,13 +32,22 @@ lists=dr.find_elements_by_css_selector('#sidebarPub')
 
 lists[0].click()
 # ---
-# lists[0].click()
+lists[0].click()
 # ---
 
-# --->
-dr.execute_script('window.scrollTo(0, 1000);')
-time.sleep(1)
-lists[23].click()
+twothousand_nine=14
+twothousand=23
+
+if whole_pages-26>0:
+    new_page=whole_pages-26
+    twothousand_nine+=new_page
+    twothousand+=new_page
+
+
+# ---> # 2009년부터 수집하기.
+# dr.execute_script('window.scrollTo(0, 1000);')
+# time.sleep(1)
+# lists[14].click()
 # --->
 
 f = open("papers.csv", "w",newline='',encoding='cp949')
@@ -97,15 +112,17 @@ def abstract_and_keywords(dr,whole_index):
     
     
 
-now_page=23
+now_page=0
 # ---
-# first = True
+first = True
 # ---
-first=False
+# first=False
 while True:
-    for i in range(1,5): # 2009년부터는 1~4호까지만 있다(그 이후에는 1~6호까지 있으므로, 2023~2009년을 수집하려면 range(1,7)로 바꾼다.)
+    for i in range(1,7): # 2009년부터는 1~4호까지만 있다(그 이후에는 1~6호까지 있으므로, 2023~2009년을 수집하려면 range(1,7)로 바꾼다.)
         if first and i>3:
             first=False
+            break
+        if now_page>=twothousand_nine and i>4:
             break
         #dev_category > li:nth-child(2)
         #dev_category > li:nth-child(1)
@@ -129,7 +146,7 @@ while True:
             # try:
                 actions = ActionChains(dr)
                 try:
-                    if i>3 or (now_page>=23 and i>=2): # 2001년인가에 1호만 있었던 적이 있어서, 그 이후 2호 이상들은 다 now_page -1 을 해야 정상적인 인덱스가 된다...
+                    if i>3 or (now_page>=twothousand and i>=2): # 2001년인가에 1호만 있었던 적이 있어서, 그 이후 2호 이상들은 다 now_page -1 을 해야 정상적인 인덱스가 된다...
                             actions.move_to_element(paper[now_page-1])
                             actions.perform()
                             time.sleep(0.5)
