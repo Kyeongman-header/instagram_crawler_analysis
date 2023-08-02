@@ -44,22 +44,40 @@ if whole_pages-26>0:
     twothousand+=new_page
 
 
-# ---> # 2009년부터 수집하기.
+now_page=0
+# ---> # n 년도부터 수집하기
 # dr.execute_script('window.scrollTo(0, 1000);')
 # time.sleep(1)
-# lists[14].click()
+# lists[now_page].click()
 # --->
 
 f = open("papers.csv", "w",newline='',encoding='cp949')
 writer = csv.writer(f,delimiter=',')
-writer.writerow(['title','years','abstract','keywords'])
+writer.writerow(['title','authors','years','abstract','keywords'])
 whole_index=0
 
 def abstract_and_keywords(dr,whole_index):
-    
+    #dpMain > section > section.thesisDetail__info > section.thesisDetail__author > ul > li:nth-child(1) > span:nth-child(1)
+    #dpMain > section > section.thesisDetail__info > section.thesisDetail__author > ul > li:nth-child(2) > span:nth-child(1)
+    #dpMain > section > section.thesisDetail__info > section.thesisDetail__author > ul > li:nth-child(3) > span:nth-child(1)
+    #dpMain > section > section.thesisDetail__info > section.thesisDetail__author > ul > li:nth-child(1) > span:nth-child(1)
+    #dpMain > section > section.thesisDetail__info > section.thesisDetail__author > ul > li:nth-child(1) > a
     whole_keywords=[]
-
+    whole_authors=[]
     try:
+        
+        for i in range(1,6):
+            author=dr.find_elements_by_css_selector('section.thesisDetail__info > section.thesisDetail__author > ul > li:nth-child('+str(i) +') > span:nth-child(1)')
+            
+            if len(author)==0:
+                author=dr.find_elements_by_css_selector('section.thesisDetail__info > section.thesisDetail__author > ul > li:nth-child('+str(i) +') > a')
+                if len(author)==0:
+                    break
+            
+            whole_authors.append(author[0].text)
+        
+        
+
         #dpMain > section > section.thesisDetail__info > section.thesisDetail__journal > ul > li:nth-child(4) > span:nth-child(1)
         years=dr.find_elements_by_css_selector('section.thesisDetail__info > section.thesisDetail__journal > ul > li:nth-child(4) > span:nth-child(1)')
         # print(years[0].text)
@@ -96,15 +114,18 @@ def abstract_and_keywords(dr,whole_index):
 
         whole_keywords = ' '.join(whole_keywords)
         whole_index += 1
+        whole_authors=','.join(whole_authors)
         print("index : ")
         print(whole_index)
         print("title and years : ")
         print(title_words + ' ' + years_words)
+        print("authors :")
+        print(whole_authors)
         # print(abstract_words)
         # print(whole_keywords)
 
 
-        writer.writerow([title_words,years_words,abstract_words,whole_keywords])
+        writer.writerow([title_words,whole_authors,years_words,abstract_words,whole_keywords])
 
     except Exception as e :
         print(e)
@@ -112,12 +133,12 @@ def abstract_and_keywords(dr,whole_index):
     
     
 
-now_page=0
 # ---
-first = True
+# first = True
 # ---
-# first=False
+first=False
 while True:
+
     for i in range(1,7): # 2009년부터는 1~4호까지만 있다(그 이후에는 1~6호까지 있으므로, 2023~2009년을 수집하려면 range(1,7)로 바꾼다.)
         if first and i>3:
             first=False
@@ -129,7 +150,7 @@ while True:
         paper=dr.find_elements_by_css_selector('#dev_category > li:nth-child('+ str(i) +') > a')
         print("paper")
         print(i)
-        print(paper)
+        # print(paper)
         print(len(paper))
 
         #dev_category > li:nth-child(2)
