@@ -20,3 +20,9 @@ labels.csv의 데이터중에서,
 # 참고한 논문.
 Ji-Su Kang and Bo-A Rhee. (2022). A Visitor Study of The Exhibition of Using Big Data Analysis which reflects viewing experiences. Journal of The Korea Society of Computer and Information, 27(2), 81-89. 
 http://journal.kci.go.kr/jksci/archive/articleView?artiId=ART002813817
+
+# 추가 서비스 : paper_crawler.py
+한국스포츠산업경영학회지(https://www.dbpia.co.kr/journal/voisDetail?voisId=VOIS00726518)의 논문 자료(제목, 저자, 년도, 키워드, 초록) 수집 crawler.
+papers.zip에 1996년부터 최신(2023년 3호)까지 수집한 자료가 있습니다. 2000년 이전에는 초록이 웹사이트에 제공되지 않아서 수집하지 못했음을 알려드립니다. 
+새롭게 수집을 하고 싶으시다면, 2023년 이후부터는 코드의 17번째줄 whole_pages=26을 23년에서 1년이 지날 때마다 1씩 늘려주시면 됩니다.
+예) 25년에 새롭게 수집하고 싶으면, whole_pages=28
